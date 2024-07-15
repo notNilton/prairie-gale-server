@@ -40,5 +40,15 @@ def add_member():
     return jsonify({"error": "Invalid member name"}), 400
 
 
+@app.route('/members', methods=['DELETE'])
+def delete_member():
+    member_to_delete = request.json.get('name')
+    if member_to_delete in members_list:
+        members_list.remove(member_to_delete)
+        save_members(members_list)
+        return jsonify({"members": members_list}), 200
+    return jsonify({"error": "Member not found"}), 404
+
+
 if __name__ == '__main__':
     app.run(debug=True)
