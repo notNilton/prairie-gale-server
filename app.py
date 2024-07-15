@@ -42,11 +42,12 @@ def add_sum():
     data = request.json
     number_a = data.get('numberA')
     number_b = data.get('numberB')
+    number_c = data.get('numberC')
 
-    if number_a is not None and number_b is not None:
+    if number_a is not None and number_b is not None and number_c is not None:
         try:
-            sum_result = add_numbers(number_a, number_b)
-            sum_member = f"Sum: {sum_result}"
+            sum_result_abc = add_numbers(number_a, number_b, number_c)
+            sum_member = f"Value: {sum_result_abc}"
             members_list.append(sum_member)
             save_members(members_list)
             return jsonify({"members": members_list}), 201
