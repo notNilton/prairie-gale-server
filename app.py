@@ -2,7 +2,7 @@
 
 import json
 from flask import Flask, request, jsonify
-from calculations import add_numbers
+from calculations import reconciliate_data
 
 app = Flask(__name__)
 
@@ -46,7 +46,7 @@ def add_sum():
 
     if number_a is not None and number_b is not None and number_c is not None:
         try:
-            sum_result_abc = add_numbers(number_a, number_b, number_c)
+            sum_result_abc = reconciliate_data(number_a, number_b, number_c)
             sum_member = f"Value: {sum_result_abc}"
             members_list.append(sum_member)
             save_members(members_list)
