@@ -61,7 +61,8 @@ def reconcile():
             return jsonify({"error": "Missing data"}), 400
 
         result = reconciliate_data(incidence_matrix, measurements, tolerances)
-        return jsonify({"reconciled_measurements": result}), 201
+        print(result)
+        return jsonify(result), 201
     except ValueError as e:
         logger.error(f"ValueError during reconciliation: {e}")
         return jsonify({"error": str(e)}), 400

@@ -1,20 +1,6 @@
 import numpy as np
 
 def reconciliate_data(incidence_matrix, measurements, tolerances):
-    """
-    Reconcile the data based on the provided incidence matrix, measurements, and tolerances.
-    
-    Parameters:
-        incidence_matrix (list or np.ndarray): The incidence matrix.
-        measurements (list or np.ndarray): Array of measurements.
-        tolerances (list or np.ndarray): Array of tolerances.
-
-    Returns:
-        list: Reconciled measurements.
-    
-    Raises:
-        ValueError: If there is a mismatch in the number of measurements or tolerances.
-    """
     try:
         # Convert inputs to numpy arrays
         incidence_matrix = np.array(incidence_matrix)
@@ -46,7 +32,9 @@ def reconciliate_data(incidence_matrix, measurements, tolerances):
         lagrange_multipliers = result[num_measurements:]
         correction = measurements - reconciled_measurements
 
-        return reconciled_measurements.tolist()
+        return {'reconciled_measurements': reconciled_measurements.tolist(),
+                'lagrange_multipliers': lagrange_multipliers.tolist(),
+                'correction': correction.tolist()}
     except ValueError as e:
         raise ValueError("Invalid numbers provided: " + str(e))
     except Exception as e:
