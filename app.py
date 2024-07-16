@@ -1,5 +1,3 @@
-# app.py
-
 import json
 from flask import Flask, request, jsonify
 from calculations import reconciliate_data
@@ -37,23 +35,20 @@ def add_member():
         return jsonify({"members": members_list}), 201
     return jsonify({"error": "Invalid member name"}), 400
 
-@app.route('/sum', methods=['POST'])
-def add_sum():
-    data = request.json
-    number_a = data.get('numberA')
-    number_b = data.get('numberB')
-    number_c = data.get('numberC')
+@app.route('/reconcile', methods=['POST'])
+def reconcile():
+    data = request.get_json()
+    try:
+        incidence_matrix = data.get('incidence_matrix')
+        measurements = data.get('measurements')
+        tolerances = data.get('tolerances')
 
-    if number_a is not None and number_b is not None and number_c is not None:
-        try:
-            sum_result_abc = reconciliate_data(number_a, number_b, number_c)
-            sum_member = f"Value: {sum_result_abc}"
-            members_list.append(sum_member)
-            save_members(members_list)
-            return jsonify({"members": members_list}), 201
-        except ValueError as e:
-            return jsonify({"error": str(e)}), 400
-    return jsonify({"error": "Missing numbers"}), 400
+        if incidence_matrix is not None and measurements is not None and tolerances is not None:
+            result = reconciliate_data(incidence_matrix, measurements, tolerances)
+            return jsonify({"reconciled_measurements": result}), 201
+        return jsonify({"error": "Missing data"}), 400
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route('/members', methods=['DELETE'])
 def delete_member():
