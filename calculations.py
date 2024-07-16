@@ -1,36 +1,46 @@
 import numpy as np
 
-def calculate_weight_vector(measurements, absolute_tolerances, num_nodes):
-    return 2 * np.concatenate((measurements / (absolute_tolerances ** 2), np.zeros(num_nodes)))
-
-def calculate_diagonal_matrix(absolute_tolerances):
-    return 2 * np.linalg.inv(np.diag(absolute_tolerances) ** 2)
-
-def calculate_weight_matrix(diag_matrix, B, num_nodes):
-    return np.block([[diag_matrix, B.T], [B, np.zeros((num_nodes, num_nodes))]])
-
-def calculate_result(weight_matrix, weight_vector):
-    return np.linalg.inv(weight_matrix) @ weight_vector
-
 def reconciliate_data(incidence_matrix, measurements, tolerances):
+    """
+    Reconcile the data based on the provided incidence matrix, measurements, and tolerances.
+    
+    Parameters:
+        incidence_matrix (list or np.ndarray): The incidence matrix.
+        measurements (list or np.ndarray): Array of measurements.
+        tolerances (list or np.ndarray): Array of tolerances.
+
+    Returns:
+        list: Reconciled measurements.
+    
+    Raises:
+        ValueError: If there is a mismatch in the number of measurements or tolerances.
+    """
     try:
-        # console.log(incidence_matrix)
-        # Ensure inputs are numpy arrays
+        # Convert inputs to numpy arrays
         incidence_matrix = np.array(incidence_matrix)
         measurements = np.array(measurements)
         tolerances = np.array(tolerances)
-    
+        
         num_nodes, num_measurements = incidence_matrix.shape
 
-        assert len(measurements) == num_measurements, "Mismatch in number of measurements"
-        assert len(tolerances) == num_measurements, "Mismatch in number of tolerances"
+        if len(measurements) != num_measurements:
+            raise ValueError("Mismatch in number of measurements")
+        if len(tolerances) != num_measurements:
+            raise ValueError("Mismatch in number of tolerances")
 
         absolute_tolerances = measurements * tolerances
 
-        weight_vector = calculate_weight_vector(measurements, absolute_tolerances, num_nodes)
-        diag_matrix = calculate_diagonal_matrix(absolute_tolerances)
-        weight_matrix = calculate_weight_matrix(diag_matrix, incidence_matrix, num_nodes)
-        result = calculate_result(weight_matrix, weight_vector)
+        # Calculate weight vector
+        weight_vector = 2 * np.concatenate((measurements / (absolute_tolerances ** 2), np.zeros(num_nodes)))
+        
+        # Calculate diagonal matrix
+        diag_matrix = 2 * np.linalg.inv(np.diag(absolute_tolerances) ** 2)
+        
+        # Calculate weight matrix
+        weight_matrix = np.block([[diag_matrix, incidence_matrix.T], [incidence_matrix, np.zeros((num_nodes, num_nodes))]])
+        
+        # Calculate result
+        result = np.linalg.inv(weight_matrix) @ weight_vector
 
         reconciled_measurements = result[:num_measurements]
         lagrange_multipliers = result[num_measurements:]
@@ -38,8 +48,13 @@ def reconciliate_data(incidence_matrix, measurements, tolerances):
 
         return reconciled_measurements.tolist()
     except ValueError as e:
-        raise ValueError("Invalid numbers provided")
+        raise ValueError("Invalid numbers provided: " + str(e))
+    except Exception as e:
+        raise Exception("An error occurred during reconciliation: " + str(e))
     
-# [[1, -1, -1, 0, 0], [0, 0, 1, -1, -1]]
-# [161, 79, 80, 63, 20]
-# [0.05, 0.01, 0.01, 0.10, 0.05]
+# Example usage:
+# incidence_matrix = [[1, -1, -1, 0, 0], [0, 0, 1, -1, -1]]
+# measurements = [161, 79, 80, 63, 20]
+# tolerances = [0.05, 0.01, 0.01, 0.10, 0.05]
+# reconciliated_measurements = reconciliate_data(incidence_matrix, measurements, tolerances)
+# print(reconciliated_measurements)
